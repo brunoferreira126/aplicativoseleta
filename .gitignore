@@ -1,0 +1,8 @@
+# Ignorar credenciais sensíveis
+.env
+.env.local
+
+# Ignorar dependências
+node_modules/
+
+backend/criptografarSenha.js
