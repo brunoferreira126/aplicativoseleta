@@ -1,14 +1,3 @@
 {
-  "build": {
-    "base": "backend",
-    "backend": {
-      "builder": "NIXPACKS",
-      "buildCommand": "cd backend && npm install"
-    }
-  },
-  "deploy": {
-    "backend": {
-      "startCommand": "cd backend && node server.js"
-    }
-  }
+  "root": "./backend"
 }
