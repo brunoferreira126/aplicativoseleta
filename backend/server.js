@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const ExcelJS = require("exceljs");
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,7 +12,7 @@ const port = process.env.PORT || 3000;
 
 // Conexão com o banco de dados
 
-require('dotenv').config();
+
 const mysql = require('mysql2');
 
 const db = mysql.createPool({
