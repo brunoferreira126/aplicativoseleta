@@ -10,7 +10,11 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Iniciar servidor
 
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
 
 // Conexão com o banco de dados
 
@@ -376,8 +380,3 @@ app.get("/", (req, res) => {
 });
 
 
-// Iniciar servidor
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-  });
