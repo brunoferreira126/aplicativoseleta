@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const ExcelJS = require("exceljs");
@@ -27,6 +27,15 @@ const db = mysql.createPool({
     connectTimeout: 20000, // 20 segundos
 });
 
+
+
+app.get("/", (req, res) => {
+  res.send("Servidor rodando! 🚀");
+});
+
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});
 
 // Middlewares
 app.use(cors()); 
