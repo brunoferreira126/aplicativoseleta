@@ -5,15 +5,17 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const ExcelJS = require("exceljs");
 require('dotenv').config();
+const mysql = require('mysql2');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 40419;
+
 
 
 // Conexão com o banco de dados
 
 
-const mysql = require('mysql2');
+
 
 const db = mysql.createPool({
     host: process.env.DB_HOST, 
