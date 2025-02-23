@@ -1,0 +1,152 @@
+/* Estilo global */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #004b26;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 1rem;
+}
+
+/* Container do login */
+.form-container {
+    background-color: white;
+    color: #004b26;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Logo */
+.logo {
+    max-width: 150px;
+    margin: 0 auto 1.5rem;
+    display: block;
+}
+
+/* Títulos */
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+/* Labels */
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #004b26;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+input:focus {
+    border-color: #006a36;
+    outline: none;
+    box-shadow: 0 0 3px #006a36;
+}
+
+::placeholder {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Botões */
+button {
+    background-color: #004b26;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #a8beb4;
+}
+
+button:focus {
+    outline: 2px solid #008a50;
+    outline-offset: 2px;
+}
+
+/* Links */
+a {
+    color: #004b26;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Mensagens de erro e sucesso */
+#message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.error {
+    background-color: #ffdddd;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+.success {
+    background-color: #ddffdd;
+    color: #006400;
+    border: 1px solid #006400;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    .form-container {
+        padding: 1.5rem;
+    }
+    input, button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+    .logo {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 1rem;
+    }
+    h1 {
+        font-size: 1.2rem;
+    }
+    .form-container {
+        padding: 1rem;
+    }
+    input, button {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    .logo {
+        max-width: 100px;
+    }
+}
