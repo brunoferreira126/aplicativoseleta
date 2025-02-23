@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão - Pedidos</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body onload="carregarPedidos()">
+    <header class="header">
+        <div class="container">
+            <img id="logo" src="imagens/logo.png" alt="logomarca">
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#pedidos">Pedidos</a></li>
+                    <li><a href="#planilhas">Planihas</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+        <table class="carrinho">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Produtos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-pedidos">
+                <!-- Pedidos serão inseridos aqui -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="planilhas-container">
+        <h2 id="planilhas">📊 Baixar Planilhas</h2>
+        <label for="data-planilha">📅 Selecione a Data:</label>
+        <input type="date" id="data-planilha">
+    
+        <div class="botoes-planilhas">
+            <button onclick="baixarPlanilhaProducao()">📥 Produção</button>
+            <button onclick="baixarPlanilhaSeparacao()">📥 Separação</button>
+        </div>
+    </div>
+    
+    
+    <footer class="footer">
+        <div class="container">
+            <p>Seleta Hortifrúti &copy; 2024 - Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+/* Estilo global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+/* Cabeçalho */
+.header {
+    background-color: #004b26;
+    color: white;
+    padding: 10px 0;
+   
+}
+header img {
+    width:150px;
+
+
+}
+
+
+.header h1 {
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin-top: 10px;
+    gap: 20px; /* Espaçamento horizontal entre os itens */
+}
+
+
+.nav-links li {
+    margin: 0 15px;
+}
+
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem; /* Tamanho base */
+    transition: color 0.3s ease-in-out;
+}
+
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+
+/* Notificações */
+.notificacao {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    z-index: 1000;
+}
+
+
+.notificacao.erro {
+    background-color: #f44336;
+}
+
+
+.loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 6px solid #ccc;
+    border-top-color: #004b26;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+
+
+/* Catálogo */
+.catalogo {
+
+
+    margin-top: 30px;
+}
+
+
+.catalogo .produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    justify-content: center; /* Centraliza os produtos */
+    margin: 0 auto; /* Centraliza horizontalmente dentro do container */
+}
+
+
+.container h2{
+    text-align: center;
+    color:#004b26;
+    margin-bottom: 25px;
+}
+
+
+
+
+.produto {
+ 
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.produto img {
+    max-width: 100%;
+    max-height: 200px;
+    height: auto;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+
+.produto button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+
+.produto button:hover {
+    background-color: #45a049;
+}
+
+
+/* Carrinho */
+.carrinho table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+
+/* Ícone no título do carrinho */
+.carrinho h2 {
+    display: flex;
+    align-items: center;
+    font-size: 1.8rem;
+    gap: 10px; /* Espaço entre o ícone e o texto */
+}
+
+
+.carrinho h2 i {
+    color: #004b26; /* Cor do ícone no padrão da página */
+    font-size: 1.8rem; /* Ajusta o tamanho do ícone */
+}
+
+
+
+
+.carrinho th, .carrinho td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+
+.carrinho button{
+    background-color: #004b26;
+
+
+    padding: 10px 50px;
+    color: white;
+    border-radius: 40px;
+}
+.carrinho button:hover {
+    background-color: #3E8E41; /* Sombra de verde */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+.carrinho table thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+
+.total {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: right;
+}
+
+#taxa-entrega{
+    color: #004b26;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#total-com-entrega{
+    color: #004b26;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+
+
+
+
+
+/* Seção Fale Conosco */
+.contato {
+    padding: 50px 20px;
+    text-align: center;
+    background-color: white; /* Fundo para destacar a seção */
+    color: #ffffff;
+}
+
+
+/* Título da Seção */
+.contato h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #004b26;
+}
+
+
+/* Subtítulo */
+.contato p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    color: #004b26;
+}
+
+
+/* Botões de Contato */
+.botoes-contato {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+
+.botoes-contato a {
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 15px 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+/* Botão Instagram */
+.btn-instagram {
+    background: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045);;
+}
+
+
+.btn-instagram:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 15px rgba(225, 48, 108, 0.5);
+}
+
+
+/* Botão WhatsApp */
+.btn-whatsapp {
+    background: linear-gradient(to right, #25D366, #128C7E);
+}
+
+
+.btn-whatsapp:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 15px rgba(18, 140, 126, 0.5);
+}
+
+
+
+
+
+
+
+
+/* Ícones */
+.botoes-contato i {
+    font-size: 1.5rem;
+}
+
+
+.produto button:active {
+    background-color: #388E3C; /* Um verde um pouco mais escuro */
+    transform: scale(0.98); /* Feedback visual de "clique" */
+}
+
+
+.produto button:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: 3px;
+}
+
+
+
+
+/* Rodapé */
+.footer {
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+
+
+
+
+
+.social-icons a {
+    margin: 0 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+.footer .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+
+
+
+/* Responsividade geral */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+
+    /* Cabeçalho */
+    .header {
+        padding: 10px;
+        text-align: center;
+    }
+
+
+    .header img {
+        width: 120px;
+        height: auto;
+    }
+
+
+    .header h1 {
+        font-size: 1.4rem;
+    }
+
+
+    .nav-links {
+       
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+
+    .nav-links li {
+        margin: 5px 0;
+        font-size: 0.9rem; /* Diminui o tamanho da fonte para caber melhor */
+    }
+
+
+    /* Notificações */
+    .notificacao {
+        width: 90%;
+        top: 20px;
+        right: 5%;
+        transition: opacity 0.3s ease-in-out;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    .notificacao.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+
+    /* Catálogo */
+    .catalogo {
+        margin-top: 20px;
+    }
+
+
+    .catalogo .produtos {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+
+    .produto {
+        padding: 10px;
+    }
+
+
+    .produto img {
+        max-width: 100%;
+        height: auto;
+    }
+
+
+    .produto button {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+
+    /* Carrinho */
+
+
+    /* Carrinho para telas menores */
+
+
+ /* Estilo para tornar a tabela do carrinho responsiva */
+@media (max-width: 768px) {
+    .carrinho table {
+        display: block; /* Torna a tabela um bloco para facilitar o scroll horizontal */
+        overflow-x: auto; /* Adiciona barra de rolagem horizontal */
+        white-space: nowrap; /* Evita quebra de linhas */
+    }
+
+
+    .carrinho table th, .carrinho table td {
+        font-size: 0.9rem; /* Ajusta o tamanho do texto */
+        padding: 8px; /* Reduz o espaçamento interno */
+        text-align: center; /* Centraliza o texto */
+    }
+
+
+    .carrinho table td button {
+        padding: 6px 10px; /* Ajusta o tamanho do botão */
+        font-size: 0.8rem; /* Reduz o tamanho do texto no botão */
+    }
+
+
+    .carrinho button {
+        display: block; /* Permite melhor alinhamento em telas pequenas */
+        width: 100%; /* Botão ocupa toda a largura disponível */
+    }
+}
+
+
+
+
+    /* Fale Conosco */
+    .contato {
+        padding: 20px;
+        text-align: center;
+    }
+
+
+    .contato h2 {
+        font-size: 1.8rem;
+    }
+
+
+    .contato p {
+        font-size: 1rem;
+    }
+
+
+    .botoes-contato {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+
+    .botoes-contato a {
+        width: 100%;
+        padding: 10px 15px;
+    }
+
+
+    /* Rodapé */
+    .footer {
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 10px;
+    }
+
+
+    .social-icons a {
+        font-size: 1.2rem;
+    }
+}
+
+
+/* Estilo para telas maiores que 768px */
+@media (min-width: 768px) {
+    .nav-links {
+        flex-direction: row; /* Garante alinhamento horizontal */
+        justify-content: center;
+        gap: 10px; /* Espaçamento consistente entre os itens */
+    }
+
+
+    .nav-links li {
+        margin: 0;
+    }
+
+
+    .nav-links a {
+        font-size: 1rem; /* Tamanho de fonte adequado para telas grandes */
+        text-decoration: none;
+    }
+
+
+    .nav-links a:hover {
+        text-decoration: underline;
+    }
+}
+
+
+/* Estilo para telas entre 481px e 767px */
+@media (min-width: 481px) and (max-width: 767px) {
+    .nav-links {
+        flex-direction: row; /* Alinha os itens horizontalmente */
+        justify-content: center; /* Centraliza os itens */
+        gap: 15px; /* Espaçamento moderado entre os itens */
+    }
+
+
+    .nav-links li {
+        margin: 0;
+    }
+
+
+    .nav-links a {
+        font-size: 0.9rem; /* Ajusta o tamanho da fonte para essa faixa */
+    }
+}
+
+
+
+
+/* Responsividade extrema para telas menores (ex: smartphones pequenos) */
+@media (max-width: 480px) {
+    .header img {
+        width: 100px;
+    }
+
+
+    .header h1 {
+        font-size: 1.2rem;
+    }
+
+
+    .nav-links {
+        flex-direction:row;
+        gap: 10px; /* Reduz ainda mais o espaçamento */
+    }
+
+
+    .nav-links a {
+        font-size: 0.8rem; /* Fonte menor para telas muito pequenas */
+    }
+
+
+
+
+    .catalogo .produtos {
+        grid-template-columns: 1fr; /* Um produto por linha */
+    }
+
+
+    .produto button {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+
+
+    .carrinho table tbody td {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+
+    .carrinho button {
+        font-size: 0.9rem;
+         padding: 8px 15px; /* Ajuste menor para telas pequenas */
+       
+    }
+
+
+    .contato h2 {
+        font-size: 1.5rem;
+    }
+
+
+    .contato p {
+        font-size: 0.9rem;
+    }
+
+
+    .botoes-contato a {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+
+    .footer {
+        font-size: 0.8rem;
+    }
+}
