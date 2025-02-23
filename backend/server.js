@@ -39,9 +39,6 @@ app.get("/", (req, res) => {
   res.send("Servidor rodando! 🚀");
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
 
 // Middlewares
 app.use(cors()); 
@@ -54,9 +51,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware para autenticação de token JWT
 const autenticarToken = (req, res, next) => {
     const token = req.headers['authorization'];
-    if (!token) return res.status(401).json({ message: 'Acesso negado!' });
+    if (!token || !token.startsWith("Bearer ")) {
+        return res.status(401).json({ message: 'Acesso negado!' });
+    }
 
-    const tokenFormatado = token.replace("Bearer ", ""); // Remover prefixo "Bearer "
+    const tokenFormatado = token.replace("Bearer ", "");
 
     jwt.verify(tokenFormatado, process.env.JWT_SECRET || 'segredo', (err, usuario) => {
         if (err) return res.status(403).json({ message: 'Token inválido!' });
@@ -102,51 +101,21 @@ app.post('/login', async (req, res) => {
         const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: "Usuário não encontrado." });
+            return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
         const usuario = rows[0];
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
 
         if (!senhaCorreta) {
-            return res.status(401).json({ message: "Senha incorreta." });
+            return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET || "segredo", { expiresIn: "1h" });
-        res.status(200).json({
-            message: "Login realizado com sucesso!",
-            token,
-            usuario
-        });
+        res.status(200).json({ message: "Login realizado com sucesso!", token, usuario });
     } catch (error) {
         console.error("Erro no login:", error);
         res.status(500).json({ message: "Erro ao processar login." });
-    }
-});
-
-// Rota para registrar um pedido
-app.post("/pedido", autenticarToken, async (req, res) => {
-    try {
-        const { itens, totalPedido, taxaEntrega, totalComEntrega } = req.body;
-        const usuario = req.usuario;
-
-        const [result] = await db.promise().query(
-            "INSERT INTO pedidos (cliente_id, total, taxa_entrega, total_com_entrega) VALUES (?, ?, ?, ?)",
-            [usuario.id, totalPedido, taxaEntrega, totalComEntrega]
-        );
-
-        const pedidoId = result.insertId;
-        for (let item of itens) {
-            await db.promise().query(
-                "INSERT INTO itens_pedido (pedido_id, nome_produto, preco, quantidade, total) VALUES (?, ?, ?, ?, ?)",
-                [pedidoId, item.nome_produto, item.preco, item.quantidade, item.total]
-            );
-        }
-
-        res.status(201).json({ message: "Pedido registrado com sucesso!" });
-    } catch (error) {
-        console.error("Erro ao registrar pedido:", error);
-        res.status(500).json({ message: "Erro ao registrar pedido." });
     }
 });
 
