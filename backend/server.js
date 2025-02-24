@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const cors = require('cors');
+
 const ExcelJS = require("exceljs");
 require('dotenv').config();
 const mysql = require('mysql2');
@@ -10,7 +10,14 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: 'seltahortifrutiaplicativo.netlify.app' }));
+//requisição para o backend 
+const cors = require("cors");
+
+app.use(cors({
+    origin: ["https://seltahortifrutiaplicativo.netlify.app/index.html"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Iniciar servidor
 

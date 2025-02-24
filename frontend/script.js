@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const response = await axios.get("http://localhost:3000/usuario/verificar", {
+            const response = await axios.get(`${API_URL}/usuario/verificar`, {
                 headers: { Authorization: `Bearer ${authToken}` }
             });
 
@@ -433,7 +433,7 @@ async function aprovarPedido(pedidoId) {
             return;
         }
 
-        const response = await axios.put(`http://localhost:3000/pedido/aprovar/${pedidoId}`, {}, {
+        const response = await axios.put(`${API_URL}/pedido/aprovar/${pedidoId}`, {}, {
             headers: { Authorization: `Bearer ${adminToken}` }
         });
 
@@ -460,7 +460,7 @@ function baixarPlanilhaProducao() {
         return;
     }
 
-    window.location.href = `http://localhost:3000/gerar-planilha-producao?data=${dataSelecionada}`;
+   window.location.href = `${API_URL}/gerar-planilha-producao?data=${dataSelecionada}`;
 }
 
 function baixarPlanilhaSeparacao() {
@@ -471,5 +471,5 @@ function baixarPlanilhaSeparacao() {
         return;
     }
 
-    window.location.href = `http://localhost:3000/gerar-planilha-separacao?data=${dataSelecionada}`;
+    window.location.href = `${API_URL}/gerar-planilha-separacao?data=${dataSelecionada}`;
 }
