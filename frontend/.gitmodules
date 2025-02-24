@@ -1,0 +1,4 @@
+
+[submodule "aplicativoseleta"]
+    path = aplicativoseleta
+    url = https://github.com/brunoferreira126/aplicativoseleta.git
