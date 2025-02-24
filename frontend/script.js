@@ -1,7 +1,7 @@
 
 const API_URL = window.location.origin.includes("localhost")
     ? "http://localhost:3000"
-    : "aplicativoseleta-production.up.railway.app"; // Substituir pelo domínio real quando subir
+    : "https://aplicativoseleta-production.up.railway.app"; // Substituir pelo domínio real quando subir
 
 axios.defaults.baseURL = API_URL;
 
@@ -74,7 +74,7 @@ document.getElementById("cadastro-form")?.addEventListener("submit", async (even
     console.log("Verificando Axios:", axios);
 
     try {
-        const response = await axios.post("/cadastro", JSON.stringify(data),  {
+        const response = await axios.post(`${API_URL}/cadastro`, JSON.stringify(data), {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -95,7 +95,8 @@ document.getElementById("login-form")?.addEventListener("submit", async (event) 
     const data = Object.fromEntries(formData.entries());
 
     try {
-        const response = await axios.post("http://localhost:3000/login", { email: data.email, senha: data.password });
+        const response = await axios.post(`${API_URL}/login`, { email: data.email, senha: data.password });
+
 
         if (response.status === 200) {
             localStorage.setItem("authToken", response.data.token);
@@ -255,7 +256,7 @@ async function finalizarPedido() {
             return;
         }
 
-        const response = await axios.post('http://localhost:3000/pedido', pedido, {
+        const response = await axios.post(`${API_URL}/pedido`, pedido,  {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -278,7 +279,7 @@ async function finalizarPedido() {
 async function carregarPedidos() {
     try {
         console.log("🔄 Buscando pedidos do backend...");
-        const response = await axios.get("http://localhost:3000/pedidos");
+        const response = await axios.get(`${API_URL}/pedidos`);
         const pedidos = response.data;
         console.log("✅ Pedidos recebidos:", pedidos);
 
@@ -349,7 +350,7 @@ document.getElementById("admin-login-form")?.addEventListener("submit", async (e
     try {
         console.log("📤 Enviando dados:", email, password); // 🔍 Verificar se os dados estão certos
 
-        const response = await axios.post("http://localhost:3000/admin/login", { email, password });
+        const response = await axios.post(`${API_URL}/admin/login`, { email, password });
 
         localStorage.setItem("adminToken", response.data.token);
         window.location.href = "admin.html"; // Redireciona após login
@@ -385,7 +386,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const response = await axios.get("http://localhost:3000/admin/verificar", {
+           const response = await axios.get(`${API_URL}/admin/verificar`, {
                 headers: { Authorization: `Bearer ${adminToken}` }
             });
 

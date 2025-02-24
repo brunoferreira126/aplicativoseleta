@@ -10,6 +10,8 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors({ origin: 'seltahortifrutiaplicativo.netlify.app' }));
+
 // Iniciar servidor
 
 app.listen(PORT, () => {
