@@ -114,27 +114,41 @@ app.post('/cadastro', async (req, res) => {
 // Rota para login
 app.post('/login', async (req, res) => {
     try {
+        console.log("Requisição recebida:", req.body);
+
         const { email, senha } = req.body;
+        if (!email || !senha) {
+            return res.status(400).json({ message: "Email e senha são obrigatórios." });
+        }
+
         const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
+
+        console.log("Usuário encontrado:", rows);
 
         if (rows.length === 0) {
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
         const usuario = rows[0];
+        console.log("Comparando senha...");
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-
+        
         if (!senhaCorreta) {
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
+        console.log("Gerando token...");
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET || "segredo", { expiresIn: "1h" });
+
+        console.log("Login bem-sucedido!");
         res.status(200).json({ message: "Login realizado com sucesso!", token, usuario });
+
     } catch (error) {
         console.error("Erro no login:", error);
-        res.status(500).json({ message: "Erro ao processar login." });
+        res.status(500).json({ message: "Erro ao processar login.", error: error.message });
     }
 });
+
 
 // Rota para buscar todos os pedidos
 app.get("/pedidos", async (req, res) => {
