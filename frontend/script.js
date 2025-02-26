@@ -1,5 +1,6 @@
+
 const API_URL =
-  process.env.NODE_ENV === "development"
+  window.location.hostname === "localhost"
     ? "http://localhost:3000"
     : "https://aplicativoseleta-production.up.railway.app";
 
