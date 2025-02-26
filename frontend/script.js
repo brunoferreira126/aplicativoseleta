@@ -1,9 +1,11 @@
-
-const API_URL = window.location.origin.includes("localhost")
+const API_URL =
+  process.env.NODE_ENV === "development"
     ? "http://localhost:3000"
-    : "https://aplicativoseleta-production.up.railway.app"; // Substituir pelo domínio real quando subir
+    : "https://aplicativoseleta-production.up.railway.app";
 
 axios.defaults.baseURL = API_URL;
+
+
 
 
 // Funções de notificação

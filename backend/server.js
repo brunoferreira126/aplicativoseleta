@@ -38,8 +38,6 @@ app.listen(PORT, () => {
 // Conexão com o banco de dados
 
 
-
-
 const db = mysql.createPool({
     host: process.env.DB_HOST, 
     user: process.env.DB_USER, 
