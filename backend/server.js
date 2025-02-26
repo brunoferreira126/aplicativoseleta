@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 //requisição para o backend 
-const cors = require("cors");
+const cors = require('cors');
 // 🔥 Melhor forma de configurar CORS
 app.use(cors({
     origin: "https://seltahortifrutiaplicativo.netlify.app",
@@ -20,6 +20,15 @@ app.use(cors({
     credentials: true
 }));
 
+// Permitir OPTIONS para pré-voo de CORS
+app.options("*", cors());
+
+app.use(express.json());
+
+// Teste se o backend está rodando
+app.get("/", (req, res) => {
+    res.send("API rodando...");
+});
 
 // Iniciar servidor
 
