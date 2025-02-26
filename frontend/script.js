@@ -4,8 +4,8 @@ const API_URL =
     ? "http://localhost:3000"
     : "https://aplicativoseleta-production.up.railway.app";
 
+console.log("API_URL definida como:", API_URL);
 axios.defaults.baseURL = API_URL;
-
 
 
 
