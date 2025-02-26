@@ -12,21 +12,13 @@ const PORT = process.env.PORT || 3000;
 
 //requisição para o backend 
 const cors = require("cors");
-
+// 🔥 Melhor forma de configurar CORS
 app.use(cors({
-    origin: ["https://seltahortifrutiaplicativo.netlify.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: "https://seltahortifrutiaplicativo.netlify.app",
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
     credentials: true
 }));
-
-// Habilitar CORS para todas as respostas
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://seltahortifrutiaplicativo.netlify.app");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    next();
-});
 
 
 // Iniciar servidor
