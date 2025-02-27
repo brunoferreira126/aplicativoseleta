@@ -28,10 +28,7 @@ app.options("*", (req, res) => {
     res.sendStatus(204);
 });
 
-// Teste se o backend está rodando
-app.get("/", (req, res) => {
-    res.send("API rodando...");
-});
+
 
 // Iniciar servidor
 
@@ -381,3 +378,7 @@ app.get("/gerar-planilha-separacao", async (req, res) => {
 });
 
 
+// Teste se o backend está rodando
+app.get("/", (req, res) => {
+    res.send("API rodando...");
+});
