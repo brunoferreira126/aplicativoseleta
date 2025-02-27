@@ -13,6 +13,16 @@ const cors = require('cors');
 
 console.log("Iniciando servidor...");
 
+
+
+
+console.log("🔍 MYSQLHOST:", process.env.MYSQLHOST);
+console.log("🔍 MYSQLUSER:", process.env.MYSQLUSER ? "OK" : "NÃO DEFINIDO");
+console.log("🔍 MYSQLDATABASE:", process.env.MYSQLDATABASE);
+console.log("🔍 MYSQLPORT:", process.env.MYSQLPORT);
+
+
+
 // Conexão com o banco de dados
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
@@ -34,6 +44,7 @@ db.getConnection((err, connection) => {
         connection.release();
     }
 }); 
+
 
 // Middlewares
 const allowedOrigins = [
