@@ -14,11 +14,17 @@ const cors = require('cors');
 
 
 // Iniciar servidor
-
+console.log("Iniciando servidor...");
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+//teste servidor 
+app.get("/", (req, res) => {
+    res.send("Servidor está rodando corretamente!");
+});
+
 
 // Conexão com o banco de dados
 
@@ -366,8 +372,3 @@ app.get("/gerar-planilha-separacao", async (req, res) => {
     }
 });
 
-
-// Teste se o backend está rodando
-app.get("/", (req, res) => {
-    res.send("API rodando...");
-});
