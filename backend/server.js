@@ -1,66 +1,57 @@
 const express = require('express');
 const path = require('path');
-const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const ExcelJS = require("exceljs");
+const bcrypt = require("bcryptjs");
+const { body, validationResult } = require('express-validator');
 require('dotenv').config();
 const mysql = require('mysql2');
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 const cors = require('cors');
 
-
-
-
-
-// Iniciar servidor
 console.log("Iniciando servidor...");
 
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
-
-//teste servidor 
-app.get("/", (req, res) => {
-    res.send("Servidor está rodando corretamente!");
-});
-
-
 // Conexão com o banco de dados
-
-
 const db = mysql.createPool({
-    host: process.env.DB_HOST, 
-    user: process.env.DB_USER, 
-    password: process.env.DB_PASSWORD, 
-    database: process.env.DB_NAME, 
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     port: process.env.DB_PORT,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    connectTimeout: 20000, // 20 segundos
+    connectTimeout: 20000
 });
 
-
-
 // Middlewares
+const allowedOrigins = [
+    'https://seltahortifrutiaplicativo.netlify.app',
+    'http://localhost:3000'
+];
+
 app.use(cors({
-    origin: "https://seltahortifrutiaplicativo.netlify.app",
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Origem não permitida'));
+        }
+    },
     methods: "GET, POST, PUT, DELETE, OPTIONS",
     allowedHeaders: "Content-Type, Authorization",
     credentials: true
 }));
 
-// Responder manualmente ao preflight request
-app.options("*", (req, res) => {
-    res.header("Access-Control-Allow-Origin", "https://seltahortifrutiaplicativo.netlify.app");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.sendStatus(204);
+// Middleware de erro para CORS
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: "Erro interno no servidor", error: err.message });
 });
 
-
+// Configuração do Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -81,31 +72,160 @@ const autenticarToken = (req, res, next) => {
     });
 };
 
+// Rota para cadastro de usuários
+app.post('/cadastro',
+    [
+        body('nome').notEmpty().withMessage('Nome é obrigatório'),
+        body('email').isEmail().withMessage('E-mail inválido'),
+        body('telefone').notEmpty().withMessage('Telefone é obrigatório'),
+        body('cidade').notEmpty().withMessage('Cidade é obrigatória'),
+        body('rua').notEmpty().withMessage('Rua é obrigatória'),
+        body('numero').notEmpty().withMessage('Número é obrigatório'),
+        body('senha').isLength({ min: 6 }).withMessage('Senha deve ter pelo menos 6 caracteres')
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const { nome, email, telefone, cidade, rua, numero, complemento, referencia, senha } = req.body;
+
+            const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
+            if (rows.length > 0) {
+                return res.status(409).json({ message: "Este e-mail já está cadastrado." });
+            }
+
+            const hashedPassword = await bcrypt.hash(senha, 10);
+            const query = "INSERT INTO usuarios (nome, email, telefone, cidade, rua, numero, complemento, referencia, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            await db.promise().query(query, [nome, email, telefone, cidade, rua, numero, complemento, referencia, hashedPassword]);
+
+            res.status(201).json({ message: "Cadastro realizado com sucesso!" });
+        } catch (error) {
+            console.error("Erro no cadastro:", error);
+            res.status(500).json({ message: "Erro ao processar o cadastro." });
+        }
+    }
+);
+
+
+// Rota para login
+const express = require('express');
+const path = require('path');
+const jwt = require('jsonwebtoken');
+const ExcelJS = require("exceljs");
+const bcrypt = require("bcryptjs");
+const { body, validationResult } = require('express-validator');
+require('dotenv').config();
+const mysql = require('mysql2');
+
+const app = express();
+const PORT = process.env.PORT || 8080;
+const cors = require('cors');
+
+console.log("Iniciando servidor...");
+
+// Conexão com o banco de dados
+const db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    connectTimeout: 20000
+});
+
+// Middlewares
+const allowedOrigins = [
+    'https://seltahortifrutiaplicativo.netlify.app',
+    'http://localhost:3000'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Origem não permitida'));
+        }
+    },
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true
+}));
+
+// Middleware de erro para CORS
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: "Erro interno no servidor", error: err.message });
+});
+
+// Configuração do Express
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware para autenticação de token JWT
+const autenticarToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token || !token.startsWith("Bearer ")) {
+        return res.status(401).json({ message: 'Acesso negado!' });
+    }
+
+    const tokenFormatado = token.replace("Bearer ", "");
+
+    jwt.verify(tokenFormatado, process.env.JWT_SECRET || 'segredo', (err, usuario) => {
+        if (err) return res.status(403).json({ message: 'Token inválido!' });
+        req.usuario = usuario;
+        next();
+    });
+};
+
+// Teste do servidor
+app.get("/", (req, res) => {
+    res.send("Servidor está rodando corretamente!");
+});
 
 // Rota para cadastro de usuários
-app.post('/cadastro', async (req, res) => {
-    try {
-        const { nome, email, telefone, cidade, rua, numero, complemento, referencia, senha } = req.body;
-
-        if (!nome || !email || !telefone || !cidade || !rua || !numero || !senha) {
-            return res.status(400).json({ message: "Preencha todos os campos obrigatórios." });
+app.post('/cadastro',
+    [
+        body('nome').notEmpty().withMessage('Nome é obrigatório'),
+        body('email').isEmail().withMessage('E-mail inválido'),
+        body('telefone').notEmpty().withMessage('Telefone é obrigatório'),
+        body('cidade').notEmpty().withMessage('Cidade é obrigatória'),
+        body('rua').notEmpty().withMessage('Rua é obrigatória'),
+        body('numero').notEmpty().withMessage('Número é obrigatório'),
+        body('senha').isLength({ min: 6 }).withMessage('Senha deve ter pelo menos 6 caracteres')
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
 
-        const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
-        if (rows.length > 0) {
-            return res.status(409).json({ message: "Este e-mail já está cadastrado." });
+        try {
+            const { nome, email, telefone, cidade, rua, numero, complemento, referencia, senha } = req.body;
+
+            const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
+            if (rows.length > 0) {
+                return res.status(409).json({ message: "Este e-mail já está cadastrado." });
+            }
+
+            const hashedPassword = await bcrypt.hash(senha, 10);
+            const query = "INSERT INTO usuarios (nome, email, telefone, cidade, rua, numero, complemento, referencia, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            await db.promise().query(query, [nome, email, telefone, cidade, rua, numero, complemento, referencia, hashedPassword]);
+
+            res.status(201).json({ message: "Cadastro realizado com sucesso!" });
+        } catch (error) {
+            console.error("Erro no cadastro:", error);
+            res.status(500).json({ message: "Erro ao processar o cadastro." });
         }
-
-        const hashedPassword = await bcrypt.hash(senha, 10);
-        const query = "INSERT INTO usuarios (nome, email, telefone, cidade, rua, numero, complemento, referencia, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        await db.promise().query(query, [nome, email, telefone, cidade, rua, numero, complemento, referencia, hashedPassword]);
-
-        res.status(201).json({ message: "Cadastro realizado com sucesso!" });
-    } catch (error) {
-        console.error("Erro no cadastro:", error);
-        res.status(500).json({ message: "Erro ao processar cadastro." });
     }
-});
+);
 
 // Rota para login
 app.post('/login', async (req, res) => {
@@ -119,24 +239,19 @@ app.post('/login', async (req, res) => {
 
         const [rows] = await db.promise().query("SELECT * FROM usuarios WHERE email = ?", [email]);
 
-        console.log("Usuário encontrado:", rows);
-
         if (rows.length === 0) {
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
         const usuario = rows[0];
-        console.log("Comparando senha...");
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
         
         if (!senhaCorreta) {
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
 
-        console.log("Gerando token...");
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET || "segredo", { expiresIn: "1h" });
 
-        console.log("Login bem-sucedido!");
         res.status(200).json({ message: "Login realizado com sucesso!", token, usuario });
 
     } catch (error) {
@@ -145,35 +260,71 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-
 // Rota para buscar todos os pedidos
 app.get("/pedidos", async (req, res) => {
     try {
         const [pedidos] = await db.promise().query(`
             SELECT 
                 p.id, p.total, p.taxa_entrega, p.total_com_entrega, p.status, p.criado_em,
-                u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia
+                u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia,
+                i.nome_produto, i.preco, i.quantidade, i.total
             FROM pedidos p
             JOIN usuarios u ON p.cliente_id = u.id
+            JOIN itens_pedido i ON p.id = i.pedido_id
             ORDER BY p.id DESC
         `);
 
-        // Buscar itens de cada pedido
-        const pedidosComItens = await Promise.all(pedidos.map(async (pedido) => {
-            const [itens] = await db.promise().query(
-                "SELECT nome_produto, preco, quantidade, total FROM itens_pedido WHERE pedido_id = ?",
-                [pedido.id]
-            );
-            return { ...pedido, itens };
-        }));
+        // Agrupar os itens por pedido
+        const pedidosMap = new Map();
+        pedidos.forEach(pedido => {
+            const { id, nome_produto, preco, quantidade, total, ...pedidoInfo } = pedido;
+            if (!pedidosMap.has(id)) {
+                pedidosMap.set(id, { ...pedidoInfo, itens: [] });
+            }
+            pedidosMap.get(id).itens.push({ nome_produto, preco, quantidade, total });
+        });
 
-        res.json(pedidosComItens);
+        res.json(Array.from(pedidosMap.values()));
     } catch (error) {
         console.error("❌ Erro ao buscar pedidos:", error);
         res.status(500).json({ message: "Erro ao buscar pedidos." });
     }
 });
+
+
+
+
+// Rota para buscar todos os pedidos 
+app.get("/pedidos", async (req, res) => {
+    try {
+        const [pedidos] = await db.promise().query(`
+            SELECT 
+                p.id, p.total, p.taxa_entrega, p.total_com_entrega, p.status, p.criado_em,
+                u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia,
+                i.nome_produto, i.preco, i.quantidade, i.total
+            FROM pedidos p
+            JOIN usuarios u ON p.cliente_id = u.id
+            JOIN itens_pedido i ON p.id = i.pedido_id
+            ORDER BY p.id DESC
+        `);
+
+        // Agrupar os itens por pedido
+        const pedidosMap = new Map();
+        pedidos.forEach(pedido => {
+            const { id, nome_produto, preco, quantidade, total, ...pedidoInfo } = pedido;
+            if (!pedidosMap.has(id)) {
+                pedidosMap.set(id, { ...pedidoInfo, itens: [] });
+            }
+            pedidosMap.get(id).itens.push({ nome_produto, preco, quantidade, total });
+        });
+
+        res.json(Array.from(pedidosMap.values()));
+    } catch (error) {
+        console.error("❌ Erro ao buscar pedidos:", error);
+        res.status(500).json({ message: "Erro ao buscar pedidos." });
+    }
+});
+
 
 
 // Rota para registrar um pedido
@@ -262,8 +413,6 @@ app.get("/usuario/verificar", autenticarToken, (req, res) => {
     res.json({ message: "Usuário autenticado.", role: "cliente" });
 });
 
-
-// Atualizar a rota de aprovação para proteger com "verificarAdmin"
 // Atualizar a rota de aprovação para proteger com "verificarAdmin"
 app.put("/pedido/aprovar/:id", verificarAdmin, async (req, res) => {
     try {
@@ -371,4 +520,12 @@ app.get("/gerar-planilha-separacao", async (req, res) => {
         res.status(500).json({ message: "Erro ao gerar planilha." });
     }
 });
+
+// Iniciar servidor
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+}).on('error', (err) => {
+    console.error('❌ Erro ao iniciar servidor:', err);
+});
+
 
