@@ -2,39 +2,23 @@ const express = require('express');
 const path = require('path');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-
 const ExcelJS = require("exceljs");
 require('dotenv').config();
 const mysql = require('mysql2');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 8080;
 const cors = require('cors');
 
-app.use(cors({
-    origin: "https://seltahortifrutiaplicativo.netlify.app",
-    methods: "GET, POST, PUT, DELETE, OPTIONS",
-    allowedHeaders: "Content-Type, Authorization",
-    credentials: true
-}));
 
-// Responder manualmente ao preflight request
-app.options("*", (req, res) => {
-    res.header("Access-Control-Allow-Origin", "https://seltahortifrutiaplicativo.netlify.app");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.sendStatus(204);
-});
 
 
 
 // Iniciar servidor
 
+
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-  });
+});
 
 // Conexão com o banco de dados
 
@@ -53,13 +37,22 @@ const db = mysql.createPool({
 
 
 
-app.get("/", (req, res) => {
-  res.send("Servidor rodando! 🚀");
-});
-
-
 // Middlewares
-app.use(cors()); 
+app.use(cors({
+    origin: "https://seltahortifrutiaplicativo.netlify.app",
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true
+}));
+
+// Responder manualmente ao preflight request
+app.options("*", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "https://seltahortifrutiaplicativo.netlify.app");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.sendStatus(204);
+});
 
 
 app.use(express.json());
@@ -82,10 +75,6 @@ const autenticarToken = (req, res, next) => {
     });
 };
 
-// Rota para testar a API
-app.get("/test", (req, res) => {
-    res.json({ message: "API funcionando!" });
-});
 
 // Rota para cadastro de usuários
 app.post('/cadastro', async (req, res) => {
