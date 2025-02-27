@@ -1,4 +1,3 @@
-// Rota para login
 const express = require('express');
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -26,6 +25,15 @@ const db = mysql.createPool({
     queueLimit: 0,
     connectTimeout: 20000
 });
+
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error("❌ Erro ao conectar ao banco de dados:", err.message);
+    } else {
+        console.log("✅ Conectado ao banco de dados!");
+        connection.release();
+    }
+}); 
 
 // Middlewares
 const allowedOrigins = [
@@ -118,8 +126,6 @@ app.post('/cadastro',
 // Rota para login
 app.post('/login', async (req, res) => {
     try {
-        console.log("Requisição recebida:", req.body);
-
         const { email, senha } = req.body;
         if (!email || !senha) {
             return res.status(400).json({ message: "Email e senha são obrigatórios." });
@@ -148,7 +154,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Rota para buscar todos os pedidos
+// Rota para buscar todos os pedidos (corrigida)
 app.get("/pedidos", async (req, res) => {
     try {
         const [pedidos] = await db.promise().query(`
@@ -178,42 +184,6 @@ app.get("/pedidos", async (req, res) => {
         res.status(500).json({ message: "Erro ao buscar pedidos." });
     }
 });
-
-
-
-
-// Rota para buscar todos os pedidos 
-app.get("/pedidos", async (req, res) => {
-    try {
-        const [pedidos] = await db.promise().query(`
-            SELECT 
-                p.id, p.total, p.taxa_entrega, p.total_com_entrega, p.status, p.criado_em,
-                u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia,
-                i.nome_produto, i.preco, i.quantidade, i.total
-            FROM pedidos p
-            JOIN usuarios u ON p.cliente_id = u.id
-            JOIN itens_pedido i ON p.id = i.pedido_id
-            ORDER BY p.id DESC
-        `);
-
-        // Agrupar os itens por pedido
-        const pedidosMap = new Map();
-        pedidos.forEach(pedido => {
-            const { id, nome_produto, preco, quantidade, total, ...pedidoInfo } = pedido;
-            if (!pedidosMap.has(id)) {
-                pedidosMap.set(id, { ...pedidoInfo, itens: [] });
-            }
-            pedidosMap.get(id).itens.push({ nome_produto, preco, quantidade, total });
-        });
-
-        res.json(Array.from(pedidosMap.values()));
-    } catch (error) {
-        console.error("❌ Erro ao buscar pedidos:", error);
-        res.status(500).json({ message: "Erro ao buscar pedidos." });
-    }
-});
-
-
 
 // Rota para registrar um pedido
 app.post("/pedido", autenticarToken, async (req, res) => {
