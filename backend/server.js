@@ -10,20 +10,23 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//requisição para o backend 
 const cors = require('cors');
-// 🔥 Melhor forma de configurar CORS
+
 app.use(cors({
     origin: "https://seltahortifrutiaplicativo.netlify.app",
-    methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type,Authorization",
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
     credentials: true
 }));
 
-// Permitir OPTIONS para pré-voo de CORS
-app.options("*", cors());
-
-app.use(express.json());
+// Responder manualmente ao preflight request
+app.options("*", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "https://seltahortifrutiaplicativo.netlify.app");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.sendStatus(204);
+});
 
 // Teste se o backend está rodando
 app.get("/", (req, res) => {
@@ -149,6 +152,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: "Erro ao processar login.", error: error.message });
     }
 });
+
 
 
 // Rota para buscar todos os pedidos
@@ -374,10 +378,6 @@ app.get("/gerar-planilha-separacao", async (req, res) => {
         console.error("Erro ao gerar planilha de separação:", error);
         res.status(500).json({ message: "Erro ao gerar planilha." });
     }
-});
-
-app.get("/", (req, res) => {
-    res.send("🚀 API está rodando!");
 });
 
 

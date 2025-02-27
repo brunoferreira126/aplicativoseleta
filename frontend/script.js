@@ -1,12 +1,7 @@
+const API_URL = "https://aplicativoseleta-production.up.railway.app";
 
-const API_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "https://aplicativoseleta-production.up.railway.app";
-
-console.log("API_URL definida como:", API_URL);
+console.log("✅ API_URL definida como:", API_URL);
 axios.defaults.baseURL = API_URL;
-
 
 
 // Funções de notificação
