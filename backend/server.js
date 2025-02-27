@@ -15,10 +15,10 @@ console.log("Iniciando servidor...");
 
 // Conexão com o banco de dados
 const db = mysql.createPool({
-    host: process.env.MYSQLHOST || "mysql.railway.internal",
-    user: process.env.MYSQLUSER || "root",
-    password: process.env.MYSQLPASSWORD || "grfFkPoOTIffeynRAJNEuUyfwFRJAB",
-    database: process.env.MYSQLDATABASE || "loja",
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
