@@ -78,15 +78,15 @@ header img {
     background-color: #4CAF50;
     color: white;
     border-radius: 5px;
-    display: block; /* Alterado para garantir que apareça */
+    display: none;
     z-index: 1000;
-    opacity: 1; /* Garante visibilidade */
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
+
 
 .notificacao.erro {
     background-color: #f44336;
 }
+
 
 .loader {
     position: fixed;
@@ -382,18 +382,6 @@ header img {
 
 /* Responsividade geral */
 @media (max-width: 768px) {
-   
-        .notificacao {
-            display: block !important;
-        top: 10px;
-        right: 10px;
-        width: auto;
-        max-width: 25%;
-        font-size: 0.9rem; /* Ajusta tamanho do texto para telas menores */
-    }
-
-        }
-    
     .container {
         padding: 10px;
     }
@@ -481,7 +469,7 @@ header img {
 
 
  /* Estilo para tornar a tabela do carrinho responsiva */
-
+@media (max-width: 768px) {
     .carrinho table {
         display: block; /* Torna a tabela um bloco para facilitar o scroll horizontal */
         overflow-x: auto; /* Adiciona barra de rolagem horizontal */
@@ -506,6 +494,7 @@ header img {
         display: block; /* Permite melhor alinhamento em telas pequenas */
         width: 100%; /* Botão ocupa toda a largura disponível */
     }
+}
 
 
 
@@ -550,7 +539,7 @@ header img {
     .social-icons a {
         font-size: 1.2rem;
     }
-
+}
 
 
 /* Estilo para telas maiores que 768px */
