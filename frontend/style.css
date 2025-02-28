@@ -71,17 +71,18 @@ header img {
 
 /* Notificações */
 .notificacao {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 15px;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 5px;
-    display: none;
-    z-index: 1000;
+    width: 90%;
+    top: 20px;
+    right: 5%;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1; /* Sempre visível */
+    transform: translateY(0);
 }
 
+.notificacao.show {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 .notificacao.erro {
     background-color: #f44336;
@@ -470,6 +471,11 @@ header img {
 
  /* Estilo para tornar a tabela do carrinho responsiva */
 @media (max-width: 768px) {
+
+    .notificacao {
+        width: 95%; /* Ajuste para melhor encaixe */
+        font-size: 1rem; /* Mantém legível */
+    }
     .carrinho table {
         display: block; /* Torna a tabela um bloco para facilitar o scroll horizontal */
         overflow-x: auto; /* Adiciona barra de rolagem horizontal */
