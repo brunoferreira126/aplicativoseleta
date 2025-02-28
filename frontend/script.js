@@ -279,7 +279,6 @@ async function carregarPedidos() {
         console.log("🔄 Buscando pedidos do backend...");
         const response = await axios.get(`${API_URL}/pedidos`);
         const pedidos = response.data;
-
         console.log("✅ Pedidos recebidos:", pedidos);
 
         const tabelaPedidos = document.getElementById("tabela-pedidos");
@@ -292,21 +291,19 @@ async function carregarPedidos() {
 
         pedidos.forEach(pedido => {
             console.log(`📌 Verificando pedido -> ID: ${pedido.id}, Cliente: ${pedido.cliente_nome}`);
+            const row = document.createElement("tr");
 
-            if (!pedido.id) {
-                console.error("❌ Pedido sem ID:", pedido);
-                return; // Pula esse pedido, pois não tem ID válido
-            }
-
+            // Montar a lista de produtos do pedido
             let detalhesItens = pedido.itens && Array.isArray(pedido.itens)
-                ? pedido.itens.map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`).join("<br>")
-                : "Sem produtos";
+            ? pedido.itens.map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`).join("<br>")
+            : "Sem produtos";
+                
+                console.log("📌 Verificando pedidos:", pedidos);
 
+            // Montar endereço completo
             let endereco = `${pedido.rua}, Nº ${pedido.numero}, ${pedido.cidade}`;
             if (pedido.complemento) endereco += `, ${pedido.complemento}`;
             if (pedido.referencia) endereco += ` (Ref: ${pedido.referencia})`;
-
-            console.log(`📌 Criando botão para pedido ID: ${pedido.id}`);
 
             row.innerHTML = `
                 <td>${pedido.cliente_nome}</td>
@@ -321,7 +318,6 @@ async function carregarPedidos() {
                         : "✅ Aprovado"}
                 </td>
             `;
-
             tabelaPedidos.appendChild(row);
         });
 
@@ -330,9 +326,6 @@ async function carregarPedidos() {
         exibirNotificacao("Erro ao carregar pedidos", "error");
     }
 }
-document.addEventListener("DOMContentLoaded", () => {
-    carregarPedidos();
-});
 
 
 // Carregar carrinho ao iniciar
