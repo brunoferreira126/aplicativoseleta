@@ -329,16 +329,7 @@ async function carregarPedidos() {
 
 // 📌 Evento global para capturar cliques nos botões
 document.addEventListener("DOMContentLoaded", () => {
-    carregarPedidos();
-
-    document.addEventListener("click", (event) => {
-        if (event.target.classList.contains("btn-concluir")) {
-            const pedidoId = event.target.getAttribute("data-id");
-            console.log(`🟢 Pedido ID enviado para aprovação: ${pedidoId}`);
-            aprovarPedido(pedidoId);
-        }
-    });
-});
+    carregarPedidos(); });
 
 
 // Carregar carrinho ao iniciar
@@ -435,6 +426,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Função para aprovar o pedido
+console.log("📌 ID do pedido recebido:", pedidoId);
+console.log("📌 Token do Admin:", adminToken);
+
+document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("btn-concluir")) {
+        const pedidoId = event.target.getAttribute("data-id");
+        console.log(`🟢 Pedido ID enviado para aprovação: ${pedidoId}`);
+        aprovarPedido(pedidoId);
+    }
+});
+
 async function aprovarPedido(pedidoId) {
     try {
         const adminToken = localStorage.getItem("adminToken");
