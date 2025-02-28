@@ -384,7 +384,14 @@ header img {
 @media (max-width: 768px) {
    
         .notificacao {
-            display: block !important; /* Garante que apareça */
+            display: block !important;
+        top: 10px;
+        right: 10px;
+        width: auto;
+        max-width: 25%;
+        font-size: 0.9rem; /* Ajusta tamanho do texto para telas menores */
+    }
+
         }
     
     .container {
