@@ -311,18 +311,30 @@ async function carregarPedidos() {
                 <td>${detalhesItens}</td>
                 <td>
                     ${pedido.status !== "Aprovado" 
-                        ? `<button class="btn-concluir" onclick="aprovarPedido(${pedido.id})">Aprovar</button>` 
+                        ? `<button class="btn-concluir" data-id="${pedido.id}">Aprovar</button>` 
                         : "✅ Aprovado"}
                 </td>
             `;
             tabelaPedidos.appendChild(row);
         });
 
+
     } catch (error) {
         console.error("❌ Erro ao carregar pedidos:", error);
         exibirNotificacao("Erro ao carregar pedidos", "error");
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    carregarPedidos();
+    document.addEventListener("click", (event) => {
+        if (event.target.classList.contains("btn-concluir")) {
+            const pedidoId = event.target.getAttribute("data-id");
+            console.log(`🟢 Pedido ID enviado para aprovação: ${pedidoId}`);
+            aprovarPedido(pedidoId);
+        }
+    });
+});
 
 
 // Carregar carrinho ao iniciar
