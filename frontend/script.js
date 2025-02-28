@@ -364,59 +364,86 @@ document.getElementById("admin-login-form")?.addEventListener("submit", async (e
 
 document.addEventListener("DOMContentLoaded", async () => {
     const paginaAtual = window.location.pathname;
-    
+
+    console.log("🌐 Página carregada:", paginaAtual);
+
     // Páginas que NÃO exigem login
     const paginasPublicas = ["/index.html", "/cadastro.html", "/admin-login.html"];
 
     if (paginasPublicas.includes(paginaAtual)) {
-        return; // Permite acesso sem verificação
+        console.log("✅ Página pública. Nenhuma verificação necessária.");
+        return; // Permite acesso sem autenticação
     }
 
     const authToken = localStorage.getItem("authToken");
     const adminToken = localStorage.getItem("adminToken");
 
+    // 🌟 Verificação para ADMIN
+    
     if (paginaAtual === "/admin.html") {
-        // Se está na página admin, verificar adminToken
         if (!adminToken) {
-            alert("🔴 Acesso restrito! Faça login como administrador.");
+            console.warn("⚠️ Nenhum token de admin encontrado. Redirecionando para login...");
             window.location.href = "admin-login.html";
             return;
         }
 
         try {
-           const response = await axios.get(`${API_URL}/admin/verificar`, {
+            console.log("🔑 Token Admin salvo:", adminToken);
+
+            const response = await axios.get(`${API_URL}/admin/verificar`, {
                 headers: { Authorization: `Bearer ${adminToken}` }
             });
 
+            console.log("✅ Admin verificado:", response.data);
+
             if (response.data.role !== "admin") {
+                console.error("🚨 Acesso negado! Role inesperada:", response.data.role);
                 throw new Error("Acesso negado! Você não é administrador.");
             }
         } catch (error) {
-            localStorage.removeItem("adminToken");
-            alert("🔴 Sessão expirada! Faça login novamente.");
-            window.location.href = "admin-login.html";
+            console.error("❌ Erro ao verificar admin:", error.response?.data || error);
+
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                localStorage.removeItem("adminToken");
+                alert("🔴 Sessão expirada! Faça login novamente.");
+                window.location.href = "admin-login.html";
+            }
         }
-    } else {
-        // Se não está na página admin, verificar se é um cliente logado
+    }
+    
+    // 🌟 Verificação para CLIENTE
+    else {
         if (!authToken) {
+            console.warn("⚠️ Nenhum token encontrado. Redirecionando para login...");
             window.location.href = "index.html";
             return;
         }
 
         try {
+            console.log("🔑 Token salvo no LocalStorage:", authToken);
+
             const response = await axios.get(`${API_URL}/usuario/verificar`, {
                 headers: { Authorization: `Bearer ${authToken}` }
             });
 
+            console.log("✅ Usuário verificado:", response.data);
+
             if (response.data.role !== "cliente") {
+                console.error("🚨 Acesso negado! Role inesperada:", response.data.role);
                 throw new Error("Acesso negado! Você não é cliente.");
             }
         } catch (error) {
-            localStorage.removeItem("authToken");
-            window.location.href = "index.html";
+            console.error("❌ Erro ao verificar usuário:", error.response?.data || error);
+
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                localStorage.removeItem("authToken");
+                alert("🔴 Sessão expirada! Faça login novamente.");
+                window.location.href = "index.html";
+            }
         }
     }
 });
+
 
 // Função para aprovar o pedido
 async function aprovarPedido(pedidoId) {
