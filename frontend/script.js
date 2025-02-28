@@ -479,4 +479,3 @@ function baixarPlanilhaSeparacao() {
     window.location.href = `${API_URL}/gerar-planilha-separacao?data=${dataSelecionada}`;
 }
 
-console.log('finalizado')

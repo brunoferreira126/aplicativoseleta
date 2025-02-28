@@ -282,36 +282,23 @@ app.get("/usuario/verificar", autenticarToken, (req, res) => {
     res.json({ message: "Usuário autenticado.", role: "cliente" });
 });
 
-// rota aprovar pedido pelo admn"
+// Atualizar a rota de aprovação para proteger com "verificarAdmin"
 app.put("/pedido/aprovar/:id", verificarAdmin, async (req, res) => {
     try {
-        const pedidoId = parseInt(req.params.id, 10); // Convertendo para número inteiro
-        console.log(`📌 Tentando aprovar pedido. ID recebido: ${pedidoId}`);
+        const pedidoId = req.params.id;
 
-        if (isNaN(pedidoId)) {
-            console.log("❌ ID do pedido inválido!");
-            return res.status(400).json({ message: "ID do pedido inválido!" });
-        }
-
-        const [result] = await db.promise().query(
-            "UPDATE pedidos SET status = 'Aprovado' WHERE id = ?", 
-            [pedidoId]
-        );
+        const [result] = await db.promise().query("UPDATE pedidos SET status = 'Aprovado' WHERE id = ?", [pedidoId]);
 
         if (result.affectedRows === 0) {
-            console.log("❌ Pedido não encontrado!");
             return res.status(404).json({ message: "Pedido não encontrado!" });
         }
 
-        console.log("✅ Pedido aprovado com sucesso!");
         res.json({ message: "✅ Pedido aprovado com sucesso!" });
-
     } catch (error) {
         console.error("❌ Erro ao aprovar pedido:", error);
-        res.status(500).json({ message: "Erro ao aprovar pedido.", error: error.message });
+        res.status(500).json({ message: "Erro ao aprovar pedido." });
     }
 });
-
 
 
 
