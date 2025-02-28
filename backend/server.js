@@ -168,7 +168,9 @@ app.post('/login', async (req, res) => {
 // Rota para buscar todos os pedidos (corrigida)
 app.get("/pedidos", async (req, res) => {
     try {
-        const [pedidos] = await db.promise().query(`
+        console.log("🔄 Buscando pedidos do banco...");
+
+        const [rows] = await db.promise().query(`
             SELECT 
                 p.id, p.total, p.taxa_entrega, p.total_com_entrega, p.status, p.criado_em,
                 u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia,
@@ -179,9 +181,16 @@ app.get("/pedidos", async (req, res) => {
             ORDER BY p.id DESC
         `);
 
+        console.log("📌 Dados brutos retornados do banco:", rows);
+
+        if (!rows || rows.length === 0) {
+            console.warn("⚠️ Nenhum pedido encontrado no banco.");
+            return res.status(404).json({ message: "Nenhum pedido encontrado." });
+        }
+
         // Agrupar os itens por pedido
         const pedidosMap = new Map();
-        pedidos.forEach(pedido => {
+        rows.forEach(pedido => {
             const { id, nome_produto, preco, quantidade, total, ...pedidoInfo } = pedido;
             if (!pedidosMap.has(id)) {
                 pedidosMap.set(id, { ...pedidoInfo, itens: [] });
@@ -189,10 +198,13 @@ app.get("/pedidos", async (req, res) => {
             pedidosMap.get(id).itens.push({ nome_produto, preco, quantidade, total });
         });
 
-        res.json(Array.from(pedidosMap.values()));
+        const pedidosFinal = Array.from(pedidosMap.values());
+        console.log("✅ Pedidos processados:", pedidosFinal);
+
+        res.json(pedidosFinal);
     } catch (error) {
         console.error("❌ Erro ao buscar pedidos:", error);
-        res.status(500).json({ message: "Erro ao buscar pedidos." });
+        res.status(500).json({ message: "Erro ao buscar pedidos.", error: error.message });
     }
 });
 
