@@ -290,25 +290,17 @@ async function carregarPedidos() {
         tabelaPedidos.innerHTML = "";
 
         pedidos.forEach(pedido => {
-            if (!pedido.id) {
-                console.error("❌ Pedido sem ID:", pedido);
-                return;
-            }
             const row = document.createElement("tr");
 
             // Montar a lista de produtos do pedido
-            let detalhesItens = pedido.itens && Array.isArray(pedido.itens)
-            ? pedido.itens.map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`).join("<br>")
-            : "Sem produtos";
-                
-                console.log("📌 Verificando pedidos:", pedidos);
+            let detalhesItens = pedido.itens
+                .map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`)
+                .join("<br>");
 
             // Montar endereço completo
             let endereco = `${pedido.rua}, Nº ${pedido.numero}, ${pedido.cidade}`;
             if (pedido.complemento) endereco += `, ${pedido.complemento}`;
             if (pedido.referencia) endereco += ` (Ref: ${pedido.referencia})`;
-            
-            console.log(`📌 Pedido ID gerado na tabela: ${pedido.id}`);
 
             row.innerHTML = `
                 <td>${pedido.cliente_nome}</td>
