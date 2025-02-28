@@ -294,20 +294,21 @@ async function carregarPedidos() {
                 console.error("❌ Pedido sem ID:", pedido);
                 return;
             }
-            
             const row = document.createElement("tr");
 
             // Montar a lista de produtos do pedido
             let detalhesItens = pedido.itens && Array.isArray(pedido.itens)
-                ? pedido.itens.map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`).join("<br>")
-                : "Sem produtos";
+            ? pedido.itens.map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`).join("<br>")
+            : "Sem produtos";
                 
-            console.log(`📌 Pedido ID gerado na tabela: ${pedido.id}`);
+                console.log("📌 Verificando pedidos:", pedidos);
 
             // Montar endereço completo
             let endereco = `${pedido.rua}, Nº ${pedido.numero}, ${pedido.cidade}`;
             if (pedido.complemento) endereco += `, ${pedido.complemento}`;
             if (pedido.referencia) endereco += ` (Ref: ${pedido.referencia})`;
+            
+            console.log(`📌 Pedido ID gerado na tabela: ${pedido.id}`);
 
             row.innerHTML = `
                 <td>${pedido.cliente_nome}</td>
@@ -318,21 +319,11 @@ async function carregarPedidos() {
                 <td>${detalhesItens}</td>
                 <td>
                     ${pedido.status !== "Aprovado" 
-                        ? `<button class="btn-concluir" data-id="${pedido.id}">Aprovar</button>` 
+                        ? `<button class="btn-concluir" onclick="aprovarPedido(${pedido.id})">Aprovar</button>` 
                         : "✅ Aprovado"}
                 </td>
             `;
-
             tabelaPedidos.appendChild(row);
-        });
-
-        // 🔥 Adiciona eventos aos botões DENTRO da função
-        document.querySelectorAll(".btn-concluir").forEach(botao => {
-            botao.addEventListener("click", function () {
-                const pedidoId = this.getAttribute("data-id");
-                console.log(`🟢 Pedido ID enviado para aprovação: ${pedidoId}`);
-                aprovarPedido(pedidoId);
-            });
         });
 
     } catch (error) {
@@ -340,10 +331,6 @@ async function carregarPedidos() {
         exibirNotificacao("Erro ao carregar pedidos", "error");
     }
 }
-
-// Carregar pedidos ao carregar a página
-document.addEventListener("DOMContentLoaded", carregarPedidos);
-
 
 
 // Carregar carrinho ao iniciar

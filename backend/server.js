@@ -168,9 +168,7 @@ app.post('/login', async (req, res) => {
 // Rota para buscar todos os pedidos (corrigida)
 app.get("/pedidos", async (req, res) => {
     try {
-        console.log("🔄 Buscando pedidos do banco...");
-
-        const [rows] = await db.promise().query(`
+        const [pedidos] = await db.promise().query(`
             SELECT 
                 p.id, p.total, p.taxa_entrega, p.total_com_entrega, p.status, p.criado_em,
                 u.nome AS cliente_nome, u.telefone, u.cidade, u.rua, u.numero, u.complemento, u.referencia,
@@ -181,16 +179,9 @@ app.get("/pedidos", async (req, res) => {
             ORDER BY p.id DESC
         `);
 
-        console.log("📌 Dados brutos retornados do banco:", rows);
-
-        if (!rows || rows.length === 0) {
-            console.warn("⚠️ Nenhum pedido encontrado no banco.");
-            return res.status(404).json({ message: "Nenhum pedido encontrado." });
-        }
-
         // Agrupar os itens por pedido
         const pedidosMap = new Map();
-        rows.forEach(pedido => {
+        pedidos.forEach(pedido => {
             const { id, nome_produto, preco, quantidade, total, ...pedidoInfo } = pedido;
             if (!pedidosMap.has(id)) {
                 pedidosMap.set(id, { ...pedidoInfo, itens: [] });
@@ -198,13 +189,10 @@ app.get("/pedidos", async (req, res) => {
             pedidosMap.get(id).itens.push({ nome_produto, preco, quantidade, total });
         });
 
-        const pedidosFinal = Array.from(pedidosMap.values());
-        console.log("✅ Pedidos processados:", pedidosFinal);
-
-        res.json(pedidosFinal);
+        res.json(Array.from(pedidosMap.values()));
     } catch (error) {
         console.error("❌ Erro ao buscar pedidos:", error);
-        res.status(500).json({ message: "Erro ao buscar pedidos.", error: error.message });
+        res.status(500).json({ message: "Erro ao buscar pedidos." });
     }
 });
 
@@ -238,8 +226,6 @@ app.post("/pedido", autenticarToken, async (req, res) => {
         res.status(500).json({ message: "Erro ao registrar pedido." });
     }
 });
-console.log("📌 Pedidos retornados do banco:", pedidos);
-
 
 // AQUI COMEÇA AS ROTAS PARA A PÁGINA ADMIN 
 
@@ -354,29 +340,22 @@ app.get("/gerar-planilha-producao", async (req, res) => {
 
         worksheet.columns = [
             { header: "Produto", key: "nome_produto", width: 30 },
-            { header: "Quantidade Total", key: "quantidade_total", width: 20 },
+            { header: "Quantidade Total", key: "quantidade_total", width: 15 }
         ];
 
-        pedidos.forEach(pedido => {
-            worksheet.addRow(pedido);
-        });
+        worksheet.addRows(pedidos);
 
-        res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        res.setHeader(
-            "Content-Disposition",
-            `attachment; filename=producao_${data}.xlsx`
-        );
+        res.setHeader("Content-Disposition", `attachment; filename=producao_${data}.xlsx`);
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error("❌ Erro ao gerar planilha de produção:", error);
-        res.status(500).json({ message: "Erro ao gerar planilha de produção." });
+        console.error("Erro ao gerar planilha de produção:", error);
+        res.status(500).json({ message: "Erro ao gerar planilha." });
     }
 });
+
 // Rota para gerar planilha de separação
 app.get("/gerar-planilha-separacao", async (req, res) => {
     try {
