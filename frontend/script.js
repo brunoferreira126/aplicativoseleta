@@ -273,7 +273,7 @@ async function finalizarPedido() {
 
 
 // Função para carregar pedidos na tela do administrador
-  // 📌 Função para carregar pedidos
+   
 async function carregarPedidos() {
     try {
         console.log("🔄 Buscando pedidos do backend...");
@@ -287,11 +287,9 @@ async function carregarPedidos() {
             return;
         }
 
-        tabelaPedidos.innerHTML = ""; // Limpa a tabela antes de preencher
+        tabelaPedidos.innerHTML = "";
 
         pedidos.forEach(pedido => {
-            console.log("📌 ID do Pedido dentro do loop:", pedido.id);
-
             const row = document.createElement("tr");
 
             // Montar a lista de produtos do pedido
@@ -313,11 +311,10 @@ async function carregarPedidos() {
                 <td>${detalhesItens}</td>
                 <td>
                     ${pedido.status !== "Aprovado" 
-                        ? `<button class="btn-concluir" data-id="${pedido.id}">Aprovar</button>` 
+                        ? `<button class="btn-concluir" onclick="aprovarPedido(${pedido.id})">Aprovar</button>` 
                         : "✅ Aprovado"}
                 </td>
             `;
-
             tabelaPedidos.appendChild(row);
         });
 
@@ -326,10 +323,6 @@ async function carregarPedidos() {
         exibirNotificacao("Erro ao carregar pedidos", "error");
     }
 }
-
-// 📌 Evento global para capturar cliques nos botões
-document.addEventListener("DOMContentLoaded", () => {
-    carregarPedidos(); });
 
 
 // Carregar carrinho ao iniciar
@@ -426,33 +419,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Função para aprovar o pedido
-console.log("📌 ID do pedido recebido:", pedidoId);
-console.log("📌 Token do Admin:", adminToken);
-
-document.addEventListener("click", (event) => {
-    if (event.target.classList.contains("btn-concluir")) {
-        const pedidoId = event.target.getAttribute("data-id");
-        console.log(`🟢 Pedido ID enviado para aprovação: ${pedidoId}`);
-        aprovarPedido(pedidoId);
-    }
-});
-
 async function aprovarPedido(pedidoId) {
     try {
         const adminToken = localStorage.getItem("adminToken");
 
-        console.log("📌 Token do Admin:", adminToken); // Verifica se o token está presente
-        console.log("📌 ID do pedido recebido:", pedidoId); // Verifica se o pedidoId está correto
+        console.log("📌 Token do Admin:", adminToken); // Verifique se o token está presente
 
         if (!adminToken) {
             exibirNotificacao("❌ Você precisa estar autenticado como administrador.", "error");
             window.location.href = "admin-login.html";
-            return;
-        }
-
-        if (!pedidoId || isNaN(pedidoId)) {
-            console.error("❌ ID do pedido é inválido:", pedidoId);
-            exibirNotificacao("❌ ID do pedido é inválido!", "error");
             return;
         }
 
@@ -471,7 +446,6 @@ async function aprovarPedido(pedidoId) {
         exibirNotificacao("❌ Erro ao aprovar pedido.", "error");
     }
 }
-
 
 
 // Função Baixar Planilha para Separação 
