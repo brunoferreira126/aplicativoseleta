@@ -226,6 +226,8 @@ app.post("/pedido", autenticarToken, async (req, res) => {
         res.status(500).json({ message: "Erro ao registrar pedido." });
     }
 });
+console.log("📌 Pedidos retornados do banco:", pedidos);
+
 
 // AQUI COMEÇA AS ROTAS PARA A PÁGINA ADMIN 
 
