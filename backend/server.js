@@ -340,22 +340,29 @@ app.get("/gerar-planilha-producao", async (req, res) => {
 
         worksheet.columns = [
             { header: "Produto", key: "nome_produto", width: 30 },
-            { header: "Quantidade Total", key: "quantidade_total", width: 15 }
+            { header: "Quantidade Total", key: "quantidade_total", width: 20 },
         ];
 
-        worksheet.addRows(pedidos);
+        pedidos.forEach(pedido => {
+            worksheet.addRow(pedido);
+        });
 
-        res.setHeader("Content-Disposition", `attachment; filename=producao_${data}.xlsx`);
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=producao_${data}.xlsx`
+        );
 
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error("Erro ao gerar planilha de produção:", error);
-        res.status(500).json({ message: "Erro ao gerar planilha." });
+        console.error("❌ Erro ao gerar planilha de produção:", error);
+        res.status(500).json({ message: "Erro ao gerar planilha de produção." });
     }
 });
-
 // Rota para gerar planilha de separação
 app.get("/gerar-planilha-separacao", async (req, res) => {
     try {
