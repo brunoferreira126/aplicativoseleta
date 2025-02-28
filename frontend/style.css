@@ -70,15 +70,25 @@ header img {
 
 
 /* Notificações */
+/* Notificações */
 .notificacao {
-    width: 90%;
+    position: fixed;
     top: 20px;
     right: 5%;
-    transition: opacity 0.3s ease-in-out;
+    background: rgba(0, 128, 0, 0.9); /* Fundo com transparência */
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    display: block; /* Garante que apareça */
     opacity: 1; /* Sempre visível */
     transform: translateY(0);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
+  
+
+/* Animação para mostrar a notificação */
 .notificacao.show {
     opacity: 1;
     transform: translateY(0);
@@ -383,6 +393,15 @@ header img {
 
 /* Responsividade geral */
 @media (max-width: 768px) {
+   
+    .notificacao {
+        width: auto; /* Garante que o tamanho se ajuste corretamente */
+        right: 10px; /* Melhor posicionamento em telas menores */
+        left: 10px; /* Para centralizar melhor */
+        max-width: 90%; /* Evita que fique muito larga */
+        font-size: 0.9rem; /* Ajuste para melhor legibilidade */
+    }
+
     .container {
         padding: 10px;
     }
@@ -471,11 +490,6 @@ header img {
 
  /* Estilo para tornar a tabela do carrinho responsiva */
 @media (max-width: 768px) {
-
-    .notificacao {
-        width: 95%; /* Ajuste para melhor encaixe */
-        font-size: 1rem; /* Mantém legível */
-    }
     .carrinho table {
         display: block; /* Torna a tabela um bloco para facilitar o scroll horizontal */
         overflow-x: auto; /* Adiciona barra de rolagem horizontal */
