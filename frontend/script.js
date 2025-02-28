@@ -311,7 +311,7 @@ async function carregarPedidos() {
                 <td>${detalhesItens}</td>
                 <td>
                     ${pedido.status !== "Aprovado" 
-                        ? `<button class="btn-concluir" onclick="aprovarPedido(${pedido.id})">Aprovar</button>` 
+                        ? `<button class="btn-concluir" data-id="${pedido.id}">Aprovar</button>` 
                         : "✅ Aprovado"}
                 </td>
             `;
@@ -423,11 +423,18 @@ async function aprovarPedido(pedidoId) {
     try {
         const adminToken = localStorage.getItem("adminToken");
 
-        console.log("📌 Token do Admin:", adminToken); // Verifique se o token está presente
+        console.log("📌 Token do Admin:", adminToken); // Verifica se o token está presente
+        console.log("📌 ID do pedido recebido:", pedidoId); // Verifica se o pedidoId está correto
 
         if (!adminToken) {
             exibirNotificacao("❌ Você precisa estar autenticado como administrador.", "error");
             window.location.href = "admin-login.html";
+            return;
+        }
+
+        if (!pedidoId || isNaN(pedidoId)) {
+            console.error("❌ ID do pedido é inválido:", pedidoId);
+            exibirNotificacao("❌ ID do pedido é inválido!", "error");
             return;
         }
 
