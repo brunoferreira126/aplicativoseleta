@@ -273,7 +273,7 @@ async function finalizarPedido() {
 
 
 // Função para carregar pedidos na tela do administrador
-   
+  // 📌 Função para carregar pedidos
 async function carregarPedidos() {
     try {
         console.log("🔄 Buscando pedidos do backend...");
@@ -287,9 +287,11 @@ async function carregarPedidos() {
             return;
         }
 
-        tabelaPedidos.innerHTML = "";
+        tabelaPedidos.innerHTML = ""; // Limpa a tabela antes de preencher
 
         pedidos.forEach(pedido => {
+            console.log("📌 ID do Pedido dentro do loop:", pedido.id);
+
             const row = document.createElement("tr");
 
             // Montar a lista de produtos do pedido
@@ -315,9 +317,9 @@ async function carregarPedidos() {
                         : "✅ Aprovado"}
                 </td>
             `;
+
             tabelaPedidos.appendChild(row);
         });
-
 
     } catch (error) {
         console.error("❌ Erro ao carregar pedidos:", error);
@@ -325,8 +327,10 @@ async function carregarPedidos() {
     }
 }
 
+// 📌 Evento global para capturar cliques nos botões
 document.addEventListener("DOMContentLoaded", () => {
     carregarPedidos();
+
     document.addEventListener("click", (event) => {
         if (event.target.classList.contains("btn-concluir")) {
             const pedidoId = event.target.getAttribute("data-id");
@@ -465,6 +469,7 @@ async function aprovarPedido(pedidoId) {
         exibirNotificacao("❌ Erro ao aprovar pedido.", "error");
     }
 }
+
 
 
 // Função Baixar Planilha para Separação 
