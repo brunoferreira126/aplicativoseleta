@@ -1,508 +1,399 @@
-const API_URL = "https://aplicativoseleta-production.up.railway.app";
 
-console.log("✅ API_URL definida como:", API_URL);
-axios.defaults.baseURL = API_URL;
-
-
-// Funções de notificação
-function exibirNotificacao(mensagem, tipo = 'success') {
-    const notificacao = document.getElementById('notificacao');
-    if (!notificacao) return; // Evita erros se o elemento não existir
-    notificacao.textContent = mensagem;
-    notificacao.style.display = 'block';
-    notificacao.className = `notificacao ${tipo}`;
-    setTimeout(() => notificacao.style.display = 'none', 3000);
-}
-
-// Função para exibir e ocultar o loader
-function exibirLoader(exibir) {
-    const loader = document.getElementById('loader');
-    if (loader) loader.style.display = exibir ? 'block' : 'none';
+// Sempre iniciar na tela de login
+if (window.location.pathname === "/" || window.location.pathname.includes("index.html")) {
+    localStorage.removeItem("clienteData");
 }
 
 
-// Dados das cidades e taxas
-const cidades = {
-    Fortaleza: { pedidoMinimo: 60, taxaEntrega: 10 },
-    Eusébio: { pedidoMinimo: 60, taxaEntrega: 7 },
-    Aquiraz: { pedidoMinimo: 60, taxaEntrega: 7 },
-    Pindoretama: { pedidoMinimo: 40, taxaEntrega: 0 },
-    Cascavel: { pedidoMinimo: 50, taxaEntrega: 7 },
-    Beberibe: { pedidoMinimo: 50, taxaEntrega: 10 },
-};
+// Criar usuário demo automaticamente
+function criarUsuariosDemo(){
 
-// Função para validar campos de cadastro
-function validarFormularioCadastro(data) {
-    const telefoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || []
 
-    if (!data.nome || data.nome.length < 3) {
-        alert('O nome deve ter pelo menos 3 caracteres.');
-        return false;
+    const existe = usuarios.find(u => u.email === "cliente@seleta.com")
+
+    if(!existe){
+
+        usuarios.push({
+            nome: "Cliente Teste",
+            email: "cliente@seleta.com",
+            senha: "123456",
+            telefone: "85999999999",
+            cidade: "Fortaleza",
+            rua: "Rua das Frutas",
+            numero: "100"
+        })
+
+        localStorage.setItem("usuarios",JSON.stringify(usuarios))
+
+        console.log("Usuário demo criado")
     }
-    if (!data.email || !/^\S+@\S+\.\S+$/.test(data.email)) {
-        alert('Insira um email válido.');
-        return false;
-    }
-    if (!data.telefone || !telefoneRegex.test(data.telefone)) {
-        alert('Insira um telefone válido no formato (99) 99999-9999.');
-        return false;
-    }
-    if (!data.enderecoRua || data.enderecoRua.length < 3) {
-        alert('A rua deve ter pelo menos 3 caracteres.');
-        return false;
-    }
-    if (!data.enderecoNumero || data.enderecoNumero <= 0) {
-        alert('O número do endereço deve ser maior que 0.');
-        return false;
-    }
-    if (!data.senha || data.senha.length < 6) {
-        alert('A senha deve ter pelo menos 6 caracteres.');
-        return false;
-    }
-    return true;
+
 }
 
-/// Cadastro de usuários
-document.getElementById("cadastro-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
+criarUsuariosDemo()
 
-    console.log("Dados enviados para o backend:", data); // 🔍 Debugando os dados no navegador
-    console.log("Verificando Axios:", axios);
+criarUsuariosDemo()
+// =============================
+// SISTEMA DEMO SELETA
+// =============================
 
-    try {
-        const response = await axios.post(`${API_URL}/cadastro`, JSON.stringify(data), {
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
+function exibirNotificacao(msg, tipo="success"){
+    const n = document.getElementById("notificacao")
+    if(!n) return
 
-        exibirNotificacao(response.data.message || "Cadastro realizado com sucesso!", "success");
-        setTimeout(() => window.location.href = "/public/index.html", 2000);
-    } catch (error) {
-        console.error("Erro no cadastro:", error.response?.data || error);
-        exibirNotificacao(error.response?.data?.message || "Erro ao realizar cadastro.", "error");
-    }
-});
+    n.innerText = msg
+    n.style.display="block"
+    n.className=`notificacao ${tipo}`
 
-// Login de usuário
-document.getElementById("login-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-        const response = await axios.post(`${API_URL}/login`, { email: data.email, senha: data.password });
-
-
-        if (response.status === 200) {
-            localStorage.setItem("authToken", response.data.token);
-            localStorage.setItem("clienteData", JSON.stringify(response.data.usuario));
-            exibirNotificacao("Login realizado com sucesso! Redirecionando...", "success");
-            setTimeout(() => window.location.href = "compras.html", 2000);
-        }
-    } catch (error) {
-        if (error.response?.status === 404) {
-            exibirNotificacao("Usuário não encontrado. Redirecionando para cadastro...", "error");
-            setTimeout(() => window.location.href = "cadastro.html", 2000);
-        } else {
-            exibirNotificacao(error.response?.data?.message || "Erro no login.", "error");
-        }
-    }
-});
-
-
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
-
-
-// Gerenciamento do carrinho
-let carrinho = [];
-
-function adicionarAoCarrinho(nome, preco) {
-    const produtoExistente = carrinho.find(item => item.nome === nome);
-
-    if (produtoExistente) {
-        produtoExistente.quantidade += 1;
-        produtoExistente.total = produtoExistente.quantidade * produtoExistente.preco;
-    } else {
-        carrinho.push({ nome, preco, quantidade: 1, total: preco });
-    }
-
-    atualizarCarrinho();
-    salvarCarrinho();
-    exibirNotificacao(`Produto "${nome}" adicionado ao carrinho.`);
-}
-
-function removerDoCarrinho(nome) {
-    carrinho = carrinho.filter(item => item.nome !== nome);
-    atualizarCarrinho();
-    salvarCarrinho();
-    exibirNotificacao(`Produto "${nome}" removido do carrinho.`);
-}
-
-// Atualizar visualização do carrinho
-function atualizarCarrinho() {
-    const tabelaCarrinho = document.getElementById('tabela-carrinho');
-    const taxaEntregaElem = document.getElementById('taxa-entrega');
-    const totalComEntregaElem = document.getElementById('total-com-entrega');
-
-    if (!tabelaCarrinho) return;
-
-    tabelaCarrinho.innerHTML = '';
-    let totalPedido = 0;
-
-    carrinho.forEach((item) => {
-        totalPedido += item.total;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.nome}</td>
-            <td>${item.quantidade}</td>
-            <td>R$${item.preco.toFixed(2)}</td>
-            <td>R$${item.total.toFixed(2)}</td>
-            <td><button onclick="removerDoCarrinho('${item.nome}')">Remover</button></td>
-        `;
-        tabelaCarrinho.appendChild(row);
-    });
-
-    const clienteData = JSON.parse(localStorage.getItem('clienteData')) || {};
-    const cidadeSelecionada = clienteData.cidade;
-    const taxaEntrega = cidadeSelecionada && cidades[cidadeSelecionada] ? cidades[cidadeSelecionada].taxaEntrega : 0;
-
-    const totalComEntrega = totalPedido + taxaEntrega;
-
-    document.getElementById('total').textContent = `Total: R$${totalPedido.toFixed(2)}`;
-    taxaEntregaElem.textContent = `Taxa de entrega: R$${taxaEntrega.toFixed(2)}`;
-    totalComEntregaElem.textContent = `Total com entrega: R$${totalComEntrega.toFixed(2)}`;
+    setTimeout(()=>{n.style.display="none"},3000)
 }
 
 
-// Salvar carrinho no localStorage
-function salvarCarrinho() {
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+// =============================
+// CADASTRO
+// =============================
+
+document.getElementById("cadastro-form")?.addEventListener("submit",(e)=>{
+
+    e.preventDefault()
+
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || []
+
+    usuarios.push(data)
+
+    localStorage.setItem("usuarios",JSON.stringify(usuarios))
+
+    exibirNotificacao("Cadastro realizado!")
+
+    setTimeout(()=>{
+        window.location.href="index.html"
+    },1500)
+
+})
+
+
+// =============================
+// LOGIN CLIENTE
+// =============================
+
+document.getElementById("login-form")?.addEventListener("submit",(e)=>{
+
+    e.preventDefault()
+
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
+
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || []
+
+    const usuario = usuarios.find(u=>u.email===email && u.senha===password)
+
+    if(!usuario){
+
+        exibirNotificacao("Usuário não encontrado","error")
+        return
+    }
+
+    localStorage.setItem("clienteData",JSON.stringify(usuario))
+
+    exibirNotificacao("Login realizado!")
+
+    setTimeout(()=>{
+        window.location.href="compras.html"
+    },1500)
+
+})
+// =============================
+// LOGOUT CLIENTE E ADMIN
+// =============================
+
+function logoutCliente() {
+    localStorage.removeItem("clienteData");
+    localStorage.removeItem("carrinho");
+    window.location.href = "index.html";
 }
 
-// Finalizar Pedido
-function verificarPedidoMinimo(totalPedido, cidade) {
-    const { pedidoMinimo } = cidades[cidade];
-    return totalPedido >= pedidoMinimo;
+function logoutAdmin() {
+    localStorage.removeItem("adminLogado");
+    window.location.href = "admin-login.html";
 }
 
-function calcularTotaisComEntrega(totalPedido, cidade) {
-    const taxaEntrega = cidades[cidade]?.taxaEntrega || 0;
-    return {
-        totalComEntrega: totalPedido + taxaEntrega,
-        taxaEntrega,
-    };
+// =============================
+// CARRINHO
+// =============================
+
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || []
+
+function adicionarAoCarrinho(nome,preco){
+
+    const item = carrinho.find(p=>p.nome===nome)
+
+    if(item){
+
+        item.quantidade++
+        item.total = item.quantidade * item.preco
+
+    }else{
+
+        carrinho.push({
+            nome,
+            preco,
+            quantidade:1,
+            total:preco
+        })
+
+    }
+
+    salvarCarrinho()
+    atualizarCarrinho()
+
 }
-async function finalizarPedido() {
-    console.log("🔄 Iniciando finalização do pedido...");
 
-    if (carrinho.length === 0) {
-        exibirNotificacao('❌ O carrinho está vazio. Adicione produtos antes de finalizar o pedido.', 'error');
-        return;
-    }
+function removerDoCarrinho(nome){
 
-    const clienteData = JSON.parse(localStorage.getItem('clienteData')) || {};
-    console.log("🟢 Dados do cliente carregados:", clienteData);
+    carrinho = carrinho.filter(i=>i.nome!==nome)
 
-    if (!clienteData || !clienteData.nome || !clienteData.cidade) {
-        exibirNotificacao('❌ Dados do cliente não encontrados. Faça login novamente.', 'error');
-        return;
-    }
+    salvarCarrinho()
+    atualizarCarrinho()
 
-    const cidadeSelecionada = clienteData.cidade;
-    
-    if (!cidades[cidadeSelecionada]) {
-        exibirNotificacao('❌ Selecione uma cidade válida no cadastro.', 'error');
-        return;
-    }
+}
 
-    const totalPedido = carrinho.reduce((total, item) => total + item.total, 0);
-    const taxaEntrega = cidades[cidadeSelecionada]?.taxaEntrega || 0;
-    const totalComEntrega = totalPedido + taxaEntrega;
+function salvarCarrinho(){
 
-    // ✅ 🚀 Verificar se o pedido atinge o mínimo exigido
-    const pedidoMinimo = cidades[cidadeSelecionada].pedidoMinimo;
-    if (totalPedido < pedidoMinimo) {
-        exibirNotificacao(`❌ O pedido mínimo para ${cidadeSelecionada} é R$${pedidoMinimo}.`, 'error');
-        return;
-    }
+    localStorage.setItem("carrinho",JSON.stringify(carrinho))
 
-    console.log("📦 Carrinho:", carrinho);
-    console.log("💰 Total do pedido:", totalPedido, " Taxa de entrega:", taxaEntrega, " Total com entrega:", totalComEntrega);
+}
 
-    const pedido = {
-        itens: carrinho.map((item) => ({
-            nome_produto: item.nome,
-            preco: item.preco,
-            quantidade: item.quantidade,
-            total: item.total
-        })),
-        totalPedido: parseFloat(totalPedido.toFixed(2)),
-        taxaEntrega: parseFloat(taxaEntrega.toFixed(2)),
-        totalComEntrega: parseFloat(totalComEntrega.toFixed(2))
-    };
+function atualizarCarrinho(){
 
-    console.log("📨 Enviando pedido ao backend:", pedido);
+    const tabela = document.getElementById("tabela-carrinho")
 
-    try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            exibirNotificacao("❌ Usuário não autenticado. Faça login novamente.", "error");
-            return;
-        }
+    if(!tabela) return
 
-        const response = await axios.post(`${API_URL}/pedido`, pedido,  {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+    tabela.innerHTML=""
 
-        console.log("✅ Pedido enviado com sucesso:", response.data);
-        exibirNotificacao('✅ Pedido enviado com sucesso!', 'success');
+    let total=0
 
-        carrinho = [];
-        salvarCarrinho();
-        atualizarCarrinho();
+    carrinho.forEach(item=>{
 
-    } catch (error) {
-        console.error('❌ Erro ao finalizar o pedido:', error.response?.data || error);
-        exibirNotificacao('❌ Erro ao finalizar o pedido. Tente novamente.', 'error');
-    }
+        total+=item.total
+
+        const row=document.createElement("tr")
+
+        row.innerHTML=`
+        <td>${item.nome}</td>
+        <td>${item.quantidade}</td>
+        <td>R$${item.preco.toFixed(2)}</td>
+        <td>R$${item.total.toFixed(2)}</td>
+        <td><button onclick="removerDoCarrinho('${item.nome}')">Remover</button></td>
+        `
+
+        tabela.appendChild(row)
+
+    })
+
+    const totalElem=document.getElementById("total")
+
+    if(totalElem) totalElem.innerText=`Total: R$${total.toFixed(2)}`
+
 }
 
 
-// Função para carregar pedidos na tela do administrador
-   
-async function carregarPedidos() {
-    try {
-        console.log("🔄 Buscando pedidos do backend...");
-        const response = await axios.get(`${API_URL}/pedidos`);
-        const pedidos = response.data;
-        console.log("✅ Pedidos recebidos:", pedidos);
+// =============================
+// FUNÇÃO LIMPAR CARRINHO
+// =============================
+function limparCarrinho(){
 
-        const tabelaPedidos = document.getElementById("tabela-pedidos");
-        if (!tabelaPedidos) {
-            console.error("❌ Elemento da tabela não encontrado!");
-            return;
-        }
+    carrinho=[]
 
-        tabelaPedidos.innerHTML = "";
+    localStorage.removeItem("carrinho")
 
-        pedidos.forEach(pedido => {
-            const row = document.createElement("tr");
+    atualizarCarrinho()
 
-            // Montar a lista de produtos do pedido
-            let detalhesItens = pedido.itens
-                .map(item => `${item.quantidade}x ${item.nome_produto} - R$${parseFloat(item.total).toFixed(2)}`)
-                .join("<br>");
-
-            // Montar endereço completo
-            let endereco = `${pedido.rua}, Nº ${pedido.numero}, ${pedido.cidade}`;
-            if (pedido.complemento) endereco += `, ${pedido.complemento}`;
-            if (pedido.referencia) endereco += ` (Ref: ${pedido.referencia})`;
-
-            row.innerHTML = `
-                <td>${pedido.cliente_nome}</td>
-                <td>${pedido.telefone}</td>
-                <td>${endereco}</td>
-                <td>R$${parseFloat(pedido.total_com_entrega).toFixed(2)}</td>
-                <td class="${pedido.status === 'Pendente' ? 'pendente' : 'aprovado'}">${pedido.status}</td>
-                <td>${detalhesItens}</td>
-                <td>
-                    ${pedido.status !== "Aprovado" 
-                        ? `<button class="btn-concluir" data-id="${pedido.id}">Aprovar</button>` 
-                        : "✅ Aprovado"}
-                </td>
-            `;
-            tabelaPedidos.appendChild(row);
-        });
-
-    } catch (error) {
-        console.error("❌ Erro ao carregar pedidos:", error);
-        exibirNotificacao("Erro ao carregar pedidos", "error");
-    }
 }
 
 
-// Carregar carrinho ao iniciar
+// =============================
+// FINALIZAR PEDIDO
+// =============================
 
-function carregarCarrinho() {
-    const carrinhoSalvo = localStorage.getItem('carrinho');
-    carrinho = carrinhoSalvo ? JSON.parse(carrinhoSalvo) : [];
-    atualizarCarrinho();
+function finalizarPedido(){
+
+    const cliente = JSON.parse(localStorage.getItem("clienteData"))
+
+    if(!cliente){
+
+        alert("Faça login")
+        return
+    }
+
+    if(carrinho.length===0){
+
+        alert("Carrinho vazio")
+        return
+    }
+
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || []
+
+    const novoPedido={
+
+        id:Date.now(),
+
+        cliente_nome:cliente.nome,
+        telefone:cliente.telefone,
+        cidade:cliente.cidade,
+        rua:cliente.rua,
+        numero:cliente.numero,
+
+        itens:carrinho,
+
+        total_com_entrega:carrinho.reduce((t,i)=>t+i.total,0),
+
+        status:"Pendente"
+
+    }
+
+    pedidos.push(novoPedido)
+
+    localStorage.setItem("pedidos",JSON.stringify(pedidos))
+
+    carrinho=[]
+    salvarCarrinho()
+
+    alert("Pedido enviado!")
+
+    atualizarCarrinho()
+
 }
-carregarCarrinho();
-
-// AQUI COMEÇAMOS O SCRIPT DA PAGÍNA ADMIN
 
 
 
-// Login de Administrador
-document.getElementById("admin-login-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const messageElem = document.getElementById("message");
+// =============================
+// ADMIN LOGIN
+// =============================
 
-    try {
-        console.log("📤 Enviando dados:", email, password); // 🔍 Verificar se os dados estão certos
+document.getElementById("admin-login-form")?.addEventListener("submit",(e)=>{
 
-        const response = await axios.post(`${API_URL}/admin/login`, { email, password });
+    e.preventDefault()
 
-        localStorage.setItem("adminToken", response.data.token);
-        window.location.href = "admin.html"; // Redireciona após login
-    } catch (error) {
-        console.error("❌ Erro no login:", error.response?.data || error);
-        messageElem.textContent = "Erro no login. Verifique suas credenciais.";
-        messageElem.classList.add("error");
-    }
-});
+    const email=document.getElementById("email").value
+    const senha=document.getElementById("password").value
 
+    if(email==="admin@seleta.com" && senha==="123456"){
 
-//só consegue fazer o login se estiver logado em ambos tanto compras como adimin
+        localStorage.setItem("adminLogado","true")
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const paginaAtual = window.location.pathname;
+        window.location.href="admin.html"
 
-    console.log("🌐 Página carregada:", paginaAtual);
+    }else{
 
-    // Páginas que NÃO exigem login
-    const paginasPublicas = ["/index.html", "/cadastro.html", "/admin-login.html"];
+        alert("Login inválido")
 
-    if (paginasPublicas.includes(paginaAtual)) {
-        console.log("✅ Página pública. Nenhuma verificação necessária.");
-        return; // Permite acesso sem autenticação
     }
 
-    const authToken = localStorage.getItem("authToken");
-    const adminToken = localStorage.getItem("adminToken");
+})
 
-    // 🌟 Verificação para ADMIN
-    
-    if (paginaAtual === "/admin.html") {
-        if (!adminToken) {
-            console.warn("⚠️ Nenhum token de admin encontrado. Redirecionando para login...");
-            window.location.href = "admin-login.html";
-            return;
+
+// =============================
+// CARREGAR PEDIDOS ADMIN
+// =============================
+
+function carregarPedidos(){
+
+    const tabela=document.getElementById("tabela-pedidos")
+
+    if(!tabela) return
+
+    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || []
+
+    tabela.innerHTML=""
+
+    pedidos.forEach(p=>{
+
+        const row=document.createElement("tr")
+
+        const itens = p.itens.map(i=>`${i.quantidade}x ${i.nome}`).join("<br>")
+
+        row.innerHTML=`
+
+        <td>${p.cliente_nome}</td>
+        <td>${p.telefone}</td>
+        <td>${p.rua}, ${p.numero}</td>
+        <td>R$${p.total_com_entrega.toFixed(2)}</td>
+        <td>${p.status}</td>
+        <td>${itens}</td>
+
+        <td>
+
+        ${p.status==="Pendente"
+        ?`<button onclick="aprovarPedido(${p.id})">Aprovar</button>`
+        :"Aprovado"}
+
+        </td>
+        `
+
+        tabela.appendChild(row)
+
+    })
+
+}
+
+
+
+// =============================
+// APROVAR PEDIDO
+// =============================
+
+function aprovarPedido(id){
+
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || []
+
+    pedidos = pedidos.map(p=>{
+
+        if(p.id===id){
+
+            p.status="Aprovado"
+
         }
 
-        try {
-            console.log("🔑 Token Admin salvo:", adminToken);
+        return p
 
-            const response = await axios.get(`${API_URL}/admin/verificar`, {
-                headers: { Authorization: `Bearer ${adminToken}` }
-            });
+    })
 
-            console.log("✅ Admin verificado:", response.data);
+    localStorage.setItem("pedidos",JSON.stringify(pedidos))
 
-            if (response.data.role !== "admin") {
-                console.error("🚨 Acesso negado! Role inesperada:", response.data.role);
-                throw new Error("Acesso negado! Você não é administrador.");
-            }
-        } catch (error) {
-            console.error("❌ Erro ao verificar admin:", error.response?.data || error);
+    carregarPedidos()
 
-            if (error.response?.status === 401 || error.response?.status === 403) {
-                localStorage.removeItem("adminToken");
-                alert("🔴 Sessão expirada! Faça login novamente.");
-                window.location.href = "admin-login.html";
-            }
-        }
-    }
-    
-    // 🌟 Verificação para CLIENTE
-    else {
-        if (!authToken) {
-            console.warn("⚠️ Nenhum token encontrado. Redirecionando para login...");
-            window.location.href = "index.html";
-            return;
-        }
-
-        try {
-            console.log("🔑 Token salvo no LocalStorage:", authToken);
-
-            const response = await axios.get(`${API_URL}/usuario/verificar`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
-
-            console.log("✅ Usuário verificado:", response.data);
-
-            if (response.data.role !== "cliente") {
-                console.error("🚨 Acesso negado! Role inesperada:", response.data.role);
-                throw new Error("Acesso negado! Você não é cliente.");
-            }
-        } catch (error) {
-            console.error("❌ Erro ao verificar usuário:", error.response?.data || error);
-
-            if (error.response?.status === 401 || error.response?.status === 403) {
-                localStorage.removeItem("authToken");
-                alert("🔴 Sessão expirada! Faça login novamente.");
-                window.location.href = "index.html";
-            }
-        }
-    }
-});
-
-
-// Função para aprovar o pedido
-async function aprovarPedido(pedidoId) {
-    try {
-        const adminToken = localStorage.getItem("adminToken");
-
-        console.log("📌 Token do Admin:", adminToken); // Verifica se o token está presente
-        console.log("📌 ID do pedido recebido:", pedidoId); // Verifica se o pedidoId está correto
-
-        if (!adminToken) {
-            exibirNotificacao("❌ Você precisa estar autenticado como administrador.", "error");
-            window.location.href = "admin-login.html";
-            return;
-        }
-
-        if (!pedidoId || isNaN(pedidoId)) {
-            console.error("❌ ID do pedido é inválido:", pedidoId);
-            exibirNotificacao("❌ ID do pedido é inválido!", "error");
-            return;
-        }
-
-        const response = await axios.put(`${API_URL}/pedido/aprovar/${pedidoId}`, {}, {
-            headers: { Authorization: `Bearer ${adminToken}` }
-        });
-
-        console.log("✅ Resposta da API:", response);
-
-        if (response.status === 200) {
-            exibirNotificacao("✅ Pedido aprovado com sucesso!", "success");
-            carregarPedidos(); // Atualiza a tabela após aprovação
-        }
-    } catch (error) {
-        console.error("❌ Erro ao aprovar pedido:", error.response?.data || error);
-        exibirNotificacao("❌ Erro ao aprovar pedido.", "error");
-    }
 }
 
 
-// Função Baixar Planilha para Separação 
 
-function baixarPlanilhaProducao() {
-    const dataSelecionada = document.getElementById('data-planilha').value;
+// =============================
+// INICIAR CARRINHO
+// =============================
 
-    if (!dataSelecionada) {
-        alert("Selecione uma data para baixar a planilha.");
-        return;
+document.addEventListener("DOMContentLoaded",()=>{
+
+    atualizarCarrinho()
+
+})
+
+// Atualizar pedidos automaticamente no admin
+document.addEventListener("DOMContentLoaded", () => {
+
+    atualizarCarrinho()
+
+    if (window.location.pathname.includes("admin.html")) {
+
+        carregarPedidos()
+
+        setInterval(() => {
+            carregarPedidos()
+        }, 2000)
+
     }
 
-   window.location.href = `${API_URL}/gerar-planilha-producao?data=${dataSelecionada}`;
-}
-
-function baixarPlanilhaSeparacao() {
-    const dataSelecionada = document.getElementById('data-planilha').value;
-
-    if (!dataSelecionada) {
-        alert("Selecione uma data para baixar a planilha.");
-        return;
-    }
-
-    window.location.href = `${API_URL}/gerar-planilha-separacao?data=${dataSelecionada}`;
-}
-
+})
