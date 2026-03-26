@@ -193,7 +193,7 @@ function finalizarPedido(){
         cidade:cliente.cidade,
         rua:cliente.rua,
         numero:cliente.numero,
-        itens:carrinho,
+        itens: JSON.parse(JSON.stringify(carrinho)),
         total_com_entrega: total + config.taxa,
         status:"Pendente"
     }
@@ -238,11 +238,16 @@ function carregarPedidos(){
         const itens = p.itens.map(i=>`${i.quantidade}x ${i.nome}`).join("<br>")
 
         row.innerHTML=`
-        <td>${p.cliente_nome}</td>
+        <td>
+    ${p.cliente_nome}<br>
+    <small>${p.cidade}</small>
+</td>
         <td>${p.telefone}</td>
         <td>${p.rua}, ${p.numero}</td>
         <td>R$${p.total_com_entrega.toFixed(2)}</td>
-        <td>${p.status}</td>
+        <td style="color:${p.status === "Pendente" ? "orange" : "green"}">
+    ${p.status}
+</td>
         <td>${itens}</td>
         <td>
         ${p.status==="Pendente"
@@ -269,6 +274,17 @@ function aprovarPedido(id){
     carregarPedidos()
 }
 
+// PROTEGER TELA ADMIN
+if (window.location.pathname.includes("admin.html")) {
+
+    const admin = localStorage.getItem("adminLogado")
+
+    if(!admin){
+        alert("Acesso negado")
+        window.location.href = "admin-login.html"
+    }
+
+}
 // =============================
 // INIT
 // =============================
